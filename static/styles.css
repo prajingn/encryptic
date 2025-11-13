@@ -106,6 +106,7 @@ button:active {
 
 .btn-success {
     background: linear-gradient(135deg, #4facfec9 0%, #55f7ffc7 100%);
+    margin-bottom: 10px;
 }
 
 .btn-danger {
@@ -343,4 +344,14 @@ body{
 h2{
     color: white;
     padding-bottom: 10px;
+}
+
+p{
+    color: white;
+}
+
+pre {
+    white-space: pre-wrap;      /* preserves formatting but allows wrapping */
+    word-wrap: break-word;      /* breaks long words if needed */
+    overflow-wrap: break-word;  /* modern version */
 }
