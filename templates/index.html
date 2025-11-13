@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PixelGenesis - Decentralized Identity Vault</title>
+    <link rel="stylesheet" href="../static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 PixelGenesis</h1>
+            <p>Decentralized Identity & Credential Vault</p>
+        </div>
+
+        <!-- Authentication Section -->
+        <div id="auth-section" class="card">
+            <div class="auth-section">
+                <!-- Register Form -->
+                <div>
+                    <h2>Register</h2>
+                    <form id="register-form">
+                        <div class="form-group">
+                            <label>Username</label>
+                            <input type="text" id="reg-username" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" id="reg-password" required>
+                        </div>
+                        <button type="submit">Create Identity</button>
+                    </form>
+                </div>
+
+                <!-- Login Form -->
+                <div>
+                    <h2>Login</h2>
+                    <form id="login-form">
+                        <div class="form-group">
+                            <label>Username</label>
+                            <input type="text" id="login-username" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" id="login-password" required>
+                        </div>
+                        <button type="submit">Access Vault</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard -->
+        <div id="dashboard" class="hidden">
+            <!-- User Info -->
+            <div class="user-info">
+                <h3>Welcome, <span id="username-display"></span>!</h3>
+                <div class="did-badge">
+                    DID: <span id="did-display"></span>
+                </div>
+                <button onclick="logout()" style="margin-top: 15px; background: rgba(255,255,255,0.3);">
+                    Logout
+                </button>
+            </div>
+
+            <!-- Tabs -->
+            <div class="card">
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('credentials')">My Credentials</button>
+                    <button class="tab" onclick="switchTab('issue')">Issue Credential</button>
+                    <button class="tab" onclick="switchTab('verify')">Verify Credential</button>
+                    <button class="tab" onclick="switchTab('resolve')">Resolve DID</button>
+                </div>
+
+                <!-- My Credentials Tab -->
+                <div id="credentials-tab" class="tab-content active">
+                    <h2>My Credentials</h2>
+                    <div id="credentials-list"></div>
+                </div>
+
+                <!-- Issue Credential Tab -->
+                <div id="issue-tab" class="tab-content">
+                    <h2>Issue New Credential</h2>
+                    <form id="issue-form">
+                        <div class="form-group">
+                            <label>Credential Type</label>
+                            <select id="credential-type">
+                                <option value="AadhaarCredential">Aadhaar Card</option>
+                                <option value="PANCredential">PAN Card</option>
+                                <option value="EducationCredential">Educational Certificate</option>
+                                <option value="DrivingLicenseCredential">Driving License</option>
+                                <option value="PassportCredential">Passport</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Document Number</label>
+                            <input type="text" id="doc-number" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="full-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Additional Data (JSON)</label>
+                            <textarea id="additional-data" rows="4" placeholder='{"address": "123 Main St", "dob": "1990-01-01"}'></textarea>
+                        </div>
+                        <button type="submit" class="btn-success">Issue Credential</button>
+                    </form>
+                </div>
+
+                <!-- Verify Credential Tab -->
+                <div id="verify-tab" class="tab-content">
+                    <h2>Verify Credential</h2>
+                    <form id="verify-form">
+                        <div class="form-group">
+                            <label>Credential ID</label>
+                            <input type="text" id="verify-credential-id" placeholder="vc:..." required>
+                        </div>
+                        <button type="submit" class="btn-success">Verify</button>
+                    </form>
+                    <div id="verify-result"></div>
+                </div>
+
+                <!-- Resolve DID Tab -->
+                <div id="resolve-tab" class="tab-content">
+                    <h2>Resolve DID</h2>
+                    <form id="resolve-form">
+                        <div class="form-group">
+                            <label>DID</label>
+                            <input type="text" id="resolve-did" placeholder="did:pixelgenesis:..." required>
+                        </div>
+                        <button type="submit" class="btn-success">Resolve</button>
+                    </form>
+                    <div id="resolve-result"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">🔑</div>
+                <h3>Self-Sovereign</h3>
+                <p>Full control over your digital identity</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🛡️</div>
+                <h3>Secure</h3>
+                <p>Cryptographic verification & blockchain anchoring</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🌐</div>
+                <h3>Interoperable</h3>
+                <p>Works across platforms with W3C standards</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔒</div>
+                <h3>Private</h3>
+                <p>Selective disclosure of credentials</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let currentUser = null;
+
+        // Register
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('reg-username').value;
+            const password = document.getElementById('reg-password').value;
+
+            const response = await fetch('/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            const data = await response.json();
+            
+            if (response.ok) {
+                alert(`Success! Your DID: ${data.did}`);
+                document.getElementById('register-form').reset();
+            } else {
+                alert('Error: ' + data.error);
+            }
+        });
+
+        // Login
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            const data = await response.json();
+            
+            if (response.ok) {
+                currentUser = { username, did: data.did };
+                showDashboard();
+                loadCredentials();
+            } else {
+                alert('Error: ' + data.error);
+            }
+        });
+
+        // Show Dashboard
+        function showDashboard() {
+            document.getElementById('auth-section').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
+            document.getElementById('username-display').textContent = currentUser.username;
+            document.getElementById('did-display').textContent = currentUser.did;
+        }
+
+        // Load Credentials
+        async function loadCredentials() {
+            const response = await fetch('/my-credentials');
+            const data = await response.json();
+            
+            const list = document.getElementById('credentials-list');
+            list.innerHTML = '';
+            
+            if (data.credentials.length === 0) {
+                list.innerHTML = '<p>No credentials yet. Issue your first credential!</p>';
+                return;
+            }
+            
+            data.credentials.forEach(cred => {
+                const card = document.createElement('div');
+                card.className = 'credential-card';
+                card.innerHTML = `
+                    <div class="credential-header">
+                        <span class="credential-type">${cred.credential_type}</span>
+                        <span class="status-badge status-${cred.status}">${cred.status.toUpperCase()}</span>
+                    </div>
+                    <p><strong>ID:</strong> ${cred.credential_id}</p>
+                    <p><strong>Issued:</strong> ${new Date(cred.issued_at).toLocaleString()}</p>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        // Issue Credential
+        document.getElementById('issue-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const credentialType = document.getElementById('credential-type').value;
+            const docNumber = document.getElementById('doc-number').value;
+            const fullName = document.getElementById('full-name').value;
+            const additionalData = document.getElementById('additional-data').value;
+            
+            let credentialData = {
+                documentNumber: docNumber,
+                fullName: fullName
+            };
+            
+            if (additionalData) {
+                try {
+                    const additional = JSON.parse(additionalData);
+                    credentialData = { ...credentialData, ...additional };
+                } catch (e) {
+                    alert('Invalid JSON in additional data');
+                    return;
+                }
+            }
+            
+            const response = await fetch('/issue-credential', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    credential_type: credentialType,
+                    credential_data: credentialData
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                alert('Credential issued successfully!');
+                document.getElementById('issue-form').reset();
+                loadCredentials();
+            } else {
+                alert('Error: ' + data.error);
+            }
+        });
+
+        // Verify Credential
+        document.getElementById('verify-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const credentialId = document.getElementById('verify-credential-id').value;
+            
+            const response = await fetch('/verify-credential', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ credential_id: credentialId })
+            });
+            
+            const data = await response.json();
+            
+            const resultDiv = document.getElementById('verify-result');
+            resultDiv.innerHTML = `
+                <div class="alert ${data.valid ? 'alert-success' : 'alert-error'}">
+                    <strong>${data.valid ? '✓ Valid' : '✗ Invalid'}</strong><br>
+                    ${data.message}
+                </div>
+            `;
+        });
+
+        // Resolve DID
+        document.getElementById('resolve-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const did = document.getElementById('resolve-did').value;
+            
+            const response = await fetch(`/resolve-did/${encodeURIComponent(did)}`);
+            const data = await response.json();
+            
+            const resultDiv = document.getElementById('resolve-result');
+            
+            if (response.ok) {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <strong>DID Found</strong><br>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-error">
+                        ${data.error}
+                    </div>
+                `;
+            }
+        });
+
+        // Tab Switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName + '-tab').classList.add('active');
+        }
+
+        // Logout
+        async function logout() {
+            await fetch('/logout', { method: 'POST' });
+            currentUser = null;
+            document.getElementById('dashboard').classList.add('hidden');
+            document.getElementById('auth-section').classList.remove('hidden');
+            document.getElementById('login-form').reset();
+        }
+    </script>
+</body>
+</html>
