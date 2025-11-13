@@ -9,12 +9,13 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🔐 PixelGenesis</h1>
+            <img src="../static/icons/hash.png" alt="" width="50px">
+            <h1 style="display: inline;">Encryptic</h1>
             <p>Decentralized Identity & Credential Vault</p>
         </div>
 
         <!-- Authentication Section -->
-        <div id="auth-section" class="card">
+        <div id="auth-section" class="glass-card">
             <div class="auth-section">
                 <!-- Register Form -->
                 <div>
@@ -58,7 +59,7 @@
                 <div class="did-badge">
                     DID: <span id="did-display"></span>
                 </div>
-                <button onclick="logout()" style="margin-top: 15px; background: rgba(255,255,255,0.3);">
+                <button onclick="logout()" style="margin-top: 15px;">
                     Logout
                 </button>
             </div>
@@ -138,23 +139,23 @@
 
         <!-- Features Section -->
         <div class="features">
-            <div class="feature-card">
-                <div class="feature-icon">🔑</div>
+            <div class="glass-card">
+                <img src="../static/icons/digital-key.png" alt="" class="icons" width="50px">
                 <h3>Self-Sovereign</h3>
                 <p>Full control over your digital identity</p>
             </div>
-            <div class="feature-card">
-                <div class="feature-icon">🛡️</div>
+            <div class="glass-card">
+                <img src="../static/icons/padlock-check.png" alt="" class="icons" width="50px">
                 <h3>Secure</h3>
                 <p>Cryptographic verification & blockchain anchoring</p>
             </div>
-            <div class="feature-card">
-                <div class="feature-icon">🌐</div>
+            <div class="glass-card">
+                <img src="../static/icons/internet-security.png" alt="" class="icons" width="50px">
                 <h3>Interoperable</h3>
                 <p>Works across platforms with W3C standards</p>
             </div>
-            <div class="feature-card">
-                <div class="feature-icon">🔒</div>
+            <div class="glass-card">
+                <img src="../static/icons/fingerprint.png" alt="" class="icons" width="50px">
                 <h3>Private</h3>
                 <p>Selective disclosure of credentials</p>
             </div>
@@ -233,7 +234,8 @@
             
             data.credentials.forEach(cred => {
                 const card = document.createElement('div');
-                card.className = 'credential-card';
+                card.className = "glass-card";
+                card.classList.add('credential-card')
                 card.innerHTML = `
                     <div class="credential-header">
                         <span class="credential-type">${cred.credential_type}</span>
