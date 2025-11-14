@@ -611,11 +611,11 @@ def push_credential_to_ipfs(credential_id):
         return jsonify({'error': f'Failed to push to IPFS: {err}'}), 500
 
 # --------------------------------------------------------------------------
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     init_db()
     print("🚀 Decentralized Identity Vault starting...")
     print("📊 Database initialized")
     print("🔐 DID system ready")
     print(f"🌐 IPFS API: {IPFS_ADDR}")
-    app.run(debug=True, port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)
