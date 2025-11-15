@@ -166,6 +166,12 @@ python app.py
 pip uninstall cryptography
 pip install cryptography
 ```
+## Project showcase
+![home page](assets/home.png)
+![issue page](assets/issue.png)
+![credentails page](assets/credentials.png)
+![verify page](assets/verify.png)
+![resolve page](assets/resolve.png)
 
 ## 📄 License
 
