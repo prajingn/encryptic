@@ -13,7 +13,7 @@
 
 ### 1. Clone Project Directory
 ```bash
-git clone https://github.com/prajingn/encryptic.git
+git clone https://github.com/prajin-gn/encryptic.git
 cd encryptic
 ```
 
